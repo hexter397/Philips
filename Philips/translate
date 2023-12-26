@@ -1,0 +1,50 @@
+import json
+from googletrans import Translator
+
+def translate_json_file(json_file_path, destination_language):
+    # Read the JSON file
+    with open(json_file_path, 'r') as file:
+        json_data = json.load(file)
+        
+    # Translate the texts
+    translator = Translator()
+    translated_data = translate_data(json_data, translator, destination_language)
+    
+    # Create a new JSON file with translated data
+    translated_file_path = 'translated_data.json'  # Replace with your desired file path
+    with open(translated_file_path, 'w') as file:
+        json.dump(translated_data, file, indent=4)
+    
+    print(f"Translation completed. Translated data saved to: {translated_file_path}")
+
+def translate_data(data, translator, destination_language):
+    if isinstance(data, dict):
+        translated_dict = {}
+        for key, value in data.items():
+            translated_key = translate_text(key, translator, destination_language)
+            translated_value = translate_data(value, translator, destination_language)
+            translated_dict[translated_key] = translated_value
+        return translated_dict
+    elif isinstance(data, list):
+        translated_list = []
+        for item in data:
+            translated_item = translate_data(item, translator, destination_language)
+            translated_list.append(translated_item)
+        return translated_list
+    elif isinstance(data, str):
+        return translate_text(data, translator, destination_language)
+    else:
+        return data
+
+def translate_text(text, translator, destination_language):
+    try:
+        translation = translator.translate(text, dest=destination_language)
+        return translation.text
+    except Exception as e:
+        print(f"Translation error: {str(e)}")
+        return "Translation error"
+
+# Usage example
+json_file_path = 'E:\Philips\Philips\Philip_germany_16may2023.json'  # Replace with the path to your JSON file
+destination_language = 'en'  # Replace with your desired destination language
+translate_json_file(json_file_path, destination_language)
